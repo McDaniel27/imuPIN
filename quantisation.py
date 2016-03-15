@@ -6,6 +6,9 @@ import madgwick
 import sensor_calibration
 import sensor_read
 
+import datetime
+import os
+
 # CONSTANTS.
 # Number of sensor samples to read for calibration.
 CALIBRATION_SAMPLES = 2000
@@ -23,7 +26,7 @@ q = (1, 0, 0, 0)
 ser = sensor_read.open_port()
 
 # Calibrate sensor.
-q = sensor_calibration.calibrate_by_time(ser, q, 2000, True, True)
+q = sensor_calibration.calibrate_by_time(ser, q, CALIBRATION_SAMPLES, True, True)
 
 # Sensor samples measurements.
 raw_acceleration = []
@@ -57,8 +60,8 @@ for i in range(0, ANALYSIS_SAMPLES):
 compressed = []
 
 # Quantisation via compression (sliding window).
-for i in range(1, len(acceleration)):
-	if i % WINDOW_SIZE == 0:
+for i in range(0, len(acceleration)):
+	if i % WINDOW_SLIDE == 0:
 		compressed.append((sum([x[0] for x in acceleration[i:i + WINDOW_SIZE]]) / WINDOW_SIZE,
 				sum([x[1] for x in acceleration[i:i + WINDOW_SIZE]]) / WINDOW_SIZE,
 				sum([x[2] for x in acceleration[i:i + WINDOW_SIZE]]) / WINDOW_SIZE))
@@ -66,7 +69,7 @@ for i in range(1, len(acceleration)):
 discrete = []
 
 # Quantisation via discretion (converted into one of 33 levels).
-for i in range(1, len(compressed)):
+for i in range(0, len(compressed)):
 	discrete.append([0, 0, 0])
 	for j in range(0, 3):
 		if compressed[i][j] > 2:
@@ -87,14 +90,18 @@ for i in range(1, len(compressed)):
 # Close serial port.
 sensor_read.close_port(ser)
 
+# Name of folder to save data in.
+folder_name = str(datetime.datetime.now().strftime("%Y-%m-%d %H%M"))
+os.makedirs(folder_name)
+
 # Write column headers to file.
-with open("sensor_data.txt", 'w') as data_file:
+with open(folder_name + "/sensor_data.txt", 'w') as data_file:
 	data_file.write("Raw Acceleration (g) // Angular Velocity (rad/s) // Gravity (g) // Acceleration (g) // "
 			"Compressed Acceleration (g) // Discrete Acceleration\n\n")
 
 # Write sensor samples measurements to file.
-with open("sensor_data.txt", "a") as data_file:
-	for i in range(0, len(raw_acceleration)):
+with open(folder_name + "/sensor_data.txt", "a") as data_file:
+	for i in range(0, len(raw_acceleration) - 30):
 		data_file.write("{:9.6f}".format(raw_acceleration[i][0]) + ", " +
 				"{:9.6f}".format(raw_acceleration[i][1]) + ", " +
 				"{:9.6f}".format(raw_acceleration[i][2]) + " // " +
@@ -117,6 +124,6 @@ with open("sensor_data.txt", "a") as data_file:
 					"{:3d}".format(discrete[i // WINDOW_SLIDE][2]))
 		data_file.write("\n\n")
 
-graphing.plot_acceleration_graph(acceleration, 2)
-graphing.plot_acceleration_graph(compressed, 2)
-graphing.plot_acceleration_graph(discrete, 16)
+graphing.plot_acceleration_graph(acceleration, 2, folder_name + "/raw_graph.png")
+graphing.plot_acceleration_graph(compressed, 2, folder_name + "/compressed_graph.png")
+graphing.plot_acceleration_graph(discrete, 16, folder_name + "/discrete_graph.png")

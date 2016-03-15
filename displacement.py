@@ -5,6 +5,8 @@ import graphing
 import madgwick
 import sensor_read
 
+import datetime
+import os
 import scipy.constants
 
 # CONSTANTS.
@@ -71,13 +73,17 @@ for i in range(0, SAMPLES):
 # Close serial port.
 sensor_read.close_port(ser)
 
+# Name of folder to save data in.
+folder_name = str(datetime.datetime.now().strftime("%Y-%m-%d %H%M"))
+os.makedirs(folder_name)
+
 # Write column headers to file.
-with open("sensor_data.txt", "w") as data_file:
+with open(folder_name + "/sensor_data.txt", "w") as data_file:
 	data_file.write("Raw Acceleration (m/s^2) // Angular Velocity (rad/s) // Gravity (m/s^2) // Acceleration (m/s2) // "
 			"Velocity (m/s) // Displacement (m)\n\n")
 
 # Write sensor sample measurements to file.
-with open("sensor_data.txt", "a") as data_file:
+with open(folder_name + "/sensor_data.txt", "a") as data_file:
 	for i in range(0, len(raw_acceleration)):
 		data_file.write("{:9.6f}".format(raw_acceleration[i][0]) + ", " +
 				"{:9.6f}".format(raw_acceleration[i][1]) + ", " +
@@ -99,4 +105,4 @@ with open("sensor_data.txt", "a") as data_file:
 				"{:9.6f}".format(displacement[i][2]) + "\n\n")
 
 # Plot displacement graph.
-graphing.plot_displacement_graph(displacement, 2)
+graphing.plot_displacement_graph(displacement, 2, folder_name + "/graph.mp4")

@@ -8,7 +8,7 @@ import numpy
 
 
 # Plot acceleration graph.
-def plot_acceleration_graph(acceleration, y_axis_size):
+def plot_acceleration_graph(acceleration, y_axis_size, image_name):
 	# Convert list of (x, y, z) tuples into array of arrays of x, y, and z values.
 	# [(1, 2, 3), (4, 5, 6)] becomes {{1, 4}, {2, 5}, {3, 6}}
 	data = numpy.empty((3, len(acceleration)))
@@ -32,12 +32,12 @@ def plot_acceleration_graph(acceleration, y_axis_size):
 	ax.set_ylim(-y_axis_size, y_axis_size)
 	ax.legend(loc="best", shadow=True)
 
-	# Show graph.
-	matplotlib.pyplot.show()
+	# Save graph as image.
+	matplotlib.pyplot.savefig(image_name)
 
 
 # Plot and animate displacement graph.
-def plot_displacement_graph(displacement, axes_size):
+def plot_displacement_graph(displacement, axes_size, video_name):
 	# Convert list of (x, y, z) tuples into array of arrays of x, y, and z values.
 	# [(1, 2, 3), (4, 5, 6)] becomes {{1, 4}, {2, 5}, {3, 6}}
 	data = numpy.empty((3, len(displacement)))
@@ -64,8 +64,9 @@ def plot_displacement_graph(displacement, axes_size):
 	line_animation = matplotlib.animation.FuncAnimation(fig, update_displacement_graph, len(displacement),
 			fargs=(data, line), interval=100, blit=False)
 
-	# Show graph.
-	matplotlib.pyplot.show()
+	# Save graph as video.
+	mp4_writer = matplotlib.animation.writers["ffmpeg"]
+	line_animation.save(video_name, writer=mp4_writer(fps=15))
 
 
 # Update displacement graph for each data point.
