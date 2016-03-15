@@ -6,11 +6,14 @@
 # http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=5975346
 # http://www.x-io.co.uk/res/sw/madgwick_algorithm_c.zip
 
-sample_freq = 100.0
-beta = 0.1
+# CONSTANTS.
+# Algorithm beta gain.
+BETA_GAIN = 0.1
+# Sample frequency of sensor in Hz.
+SAMPLE_FREQ = 100.0
 
 
-# Get orientation quaternion.
+# Calculate orientation quaternion.
 def orientation_filter(q, ang, acc):
 	q0, q1, q2, q3 = q
 	gx, gy, gz = ang
@@ -52,15 +55,15 @@ def orientation_filter(q, ang, acc):
 		s2 *= recip_norm
 		s3 *= recip_norm
 
-		q_dot_1 -= beta * s0
-		q_dot_2 -= beta * s1
-		q_dot_3 -= beta * s2
-		q_dot_4 -= beta * s3
+		q_dot_1 -= BETA_GAIN * s0
+		q_dot_2 -= BETA_GAIN * s1
+		q_dot_3 -= BETA_GAIN * s2
+		q_dot_4 -= BETA_GAIN * s3
 
-	q0 += q_dot_1 * (1.0 / sample_freq)
-	q1 += q_dot_2 * (1.0 / sample_freq)
-	q2 += q_dot_3 * (1.0 / sample_freq)
-	q3 += q_dot_4 * (1.0 / sample_freq)
+	q0 += q_dot_1 * (1.0 / SAMPLE_FREQ)
+	q1 += q_dot_2 * (1.0 / SAMPLE_FREQ)
+	q2 += q_dot_3 * (1.0 / SAMPLE_FREQ)
+	q3 += q_dot_4 * (1.0 / SAMPLE_FREQ)
 
 	recip_norm = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3) ** (-1/2)
 	q0 *= recip_norm
@@ -68,4 +71,4 @@ def orientation_filter(q, ang, acc):
 	q2 *= recip_norm
 	q3 *= recip_norm
 
-	return [q0, q1, q2, q3]
+	return q0, q1, q2, q3

@@ -1,15 +1,27 @@
-# imuPIN - displacement.py
+# imuPIN - displacement_calibrated.py
 # Stuart McDaniel, 2016
 
 import graphing
 import madgwick
+import sensor_calibration
 import sensor_read
 
 import scipy.constants
 
 # CONSTANTS.
+# Number of sensor samples to read for calibration.
+CALIBRATION_SAMPLES = 2000
 # Number of sensor samples to read for analysis.
-SAMPLES = 2000
+ANALYSIS_SAMPLES = 2000
+
+# Starting orientation quaternion.
+q = (1, 0, 0, 0)
+
+# Open serial port.
+ser = sensor_read.open_port()
+
+# Calibrate sensor.
+q = sensor_calibration.calibrate_by_time(ser, q, CALIBRATION_SAMPLES, True, True)
 
 # Sensor samples measurements.
 raw_acceleration = [(float(0), float(0), float(0))]
@@ -21,16 +33,10 @@ velocity = [(float(0), float(0), float(0))]
 displacement_change = [(float(0), float(0), float(0))]
 displacement = [(float(0), float(0), float(0))]
 
-# Starting orientation quaternion.
-q = (1, 0, 0, 0)
-
-# Open serial port.
-ser = sensor_read.open_port()
-
 # Analysis.
-for i in range(0, SAMPLES):
+for i in range(0, ANALYSIS_SAMPLES):
 	# Get acceleration and angular velocity values from sensor packet.
-	sensor_values = sensor_read.get_sensor_values(ser, True, True)
+	sensor_values = sensor_read.get_sensor_values(ser, "metres", "radians")
 
 	# If values valid.
 	if len(sensor_values) == 6:
@@ -79,15 +85,15 @@ with open("sensor_data.txt", "w") as data_file:
 # Write sensor sample measurements to file.
 with open("sensor_data.txt", "a") as data_file:
 	for i in range(0, len(raw_acceleration)):
-		data_file.write("{:9.6f}".format(raw_acceleration[i][0]) + ", " +
-				"{:9.6f}".format(raw_acceleration[i][1]) + ", " +
-				"{:9.6f}".format(raw_acceleration[i][2]) + " // " +
-				"{:9.6f}".format(angular_velocity[i][0]) + ", " +
-				"{:9.6f}".format(angular_velocity[i][1]) + ", " +
-				"{:9.6f}".format(angular_velocity[i][2]) + " // " +
-				"{:9.6f}".format(gravity[i][0]) + ", " +
-				"{:9.6f}".format(gravity[i][1]) + ", " +
-				"{:9.6f}".format(gravity[i][2]) + " // " +
+		data_file.write("{:9.6f}".format(raw_acceleration[i + len(raw_acceleration) - len(displacement)][0]) + ", " +
+				"{:9.6f}".format(raw_acceleration[i + len(raw_acceleration) - len(displacement)][1]) + ", " +
+				"{:9.6f}".format(raw_acceleration[i + len(raw_acceleration) - len(displacement)][2]) + " // " +
+				"{:9.6f}".format(angular_velocity[i + len(raw_acceleration) - len(displacement)][0]) + ", " +
+				"{:9.6f}".format(angular_velocity[i + len(raw_acceleration) - len(displacement)][1]) + ", " +
+				"{:9.6f}".format(angular_velocity[i + len(raw_acceleration) - len(displacement)][2]) + " // " +
+				"{:9.6f}".format(gravity[i + len(raw_acceleration) - len(displacement)][0]) + ", " +
+				"{:9.6f}".format(gravity[i + len(raw_acceleration) - len(displacement)][1]) + ", " +
+				"{:9.6f}".format(gravity[i + len(raw_acceleration) - len(displacement)][2]) + " // " +
 				"{:9.6f}".format(acceleration[i][0]) + ", " +
 				"{:9.6f}".format(acceleration[i][1]) + ", " +
 				"{:9.6f}".format(acceleration[i][2]) + " // " +
