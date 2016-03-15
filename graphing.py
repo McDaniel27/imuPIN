@@ -19,6 +19,7 @@ def plot_acceleration_graph(acceleration, y_axis_size, image_name):
 
 	# Plot graph.
 	fig = matplotlib.pyplot.figure()
+	fig.set_size_inches(20, 10)
 	ax = fig.add_subplot(1, 1, 1)
 	ax.plot(range(0, len(acceleration)), data[0], label="X-Axis")
 	ax.plot(range(0, len(acceleration)), data[1], label="Y-Axis")
@@ -33,7 +34,7 @@ def plot_acceleration_graph(acceleration, y_axis_size, image_name):
 	ax.legend(loc="best", shadow=True)
 
 	# Save graph as image.
-	matplotlib.pyplot.savefig(image_name)
+	matplotlib.pyplot.savefig(image_name, dpi=100)
 
 
 # Plot and animate displacement graph.

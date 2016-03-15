@@ -6,7 +6,6 @@ import sensor_read
 
 import os
 import scipy.constants
-import time
 
 
 # Calibrate sensor by calculating q on number of samples.
@@ -23,7 +22,7 @@ def calibrate_by_time(ser, q, samples, metres, radians):
 			q = madgwick.orientation_filter(q, (ax, ay, az), (gx, gy, gz))
 
 	# Announce sensor calibrated.
-	calibrated()
+	os.system("say 'calibrated'")
 
 	return q
 
@@ -60,7 +59,7 @@ def calibrate_by_compare(ser, q, metres, radians):
 			break
 
 	# Announce sensor calibrated.
-	calibrated()
+	os.system("say 'calibrated'")
 
 	return q
 
@@ -75,9 +74,3 @@ def within_range(tuples, range_value):
 				within = False
 
 	return within
-
-
-# Announce sensor calibrated.
-def calibrated():
-	os.system("say 'calibrated'")
-	time.sleep(5)
