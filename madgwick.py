@@ -13,7 +13,7 @@ BETA_GAIN = 0.1
 SAMPLE_FREQ = 100.0
 
 
-# Calculate orientation quaternion.
+# Calculate orientation quaternion of sensor sample using previous quaternion.
 def orientation_filter(q, ang, acc):
 	q0, q1, q2, q3 = q
 	gx, gy, gz = ang

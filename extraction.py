@@ -1,4 +1,4 @@
-# imuPIN - quantisation.py
+# imuPIN - extraction.py
 # Stuart McDaniel, 2016
 
 import graphing
@@ -39,14 +39,20 @@ sensor_low.close_serial_port(ser)
 compressed = sensor_high.quantisation_compress(acceleration, WINDOW_SIZE, WINDOW_SLIDE)
 discrete = sensor_high.quantisation_discrete(compressed)
 
+# Get z-axis peaks in quantised acceleration samples.
+peaks = sensor_high.find_peaks(compressed, 2)
+
+# Segment sections of acceleration data containing PIN entry.
+segments = sensor_high.segment(compressed, peaks)
+
+# Extract PIN transitions from PIN entry segment.
+features = []
+for i in range(len(segments)):
+	features.append(sensor_high.extract(segments[i]))
+
 # Write acceleration samples to file.
 with open("acceleration_data.pkl", "wb") as acceleration_fle:
 	pickle.dump(acceleration, acceleration_fle)
-
-# Write column headers to file.
-with open("sensor_data.txt", 'w') as data_file:
-	data_file.write("Raw Acceleration (g) // Angular Velocity (rad/s) // Gravity (g) // Acceleration (g) // "
-			"Compressed Acceleration (g) // Discrete Acceleration\n\n")
 
 # Write sensor samples measurements to file.
 with open("sensor_data.txt", "a") as data_file:
@@ -73,7 +79,30 @@ with open("sensor_data.txt", "a") as data_file:
 					"{:3d}".format(discrete[i // WINDOW_SLIDE][2]))
 		data_file.write("\n\n")
 
+# Write feature sensor samples measurements to file.
+for i in range(len(features)):
+	for j in range(len(features[i])):
+		# Write column headers to file.
+		with open("segment" + str(i) + "_feature" + str(j) + "_sensor_data.txt", 'w') as data_file:
+			data_file.write("Compressed Acceleration (g)\n\n")
+
+		# Write sensor samples measurements to file.
+		with open("segment" + str(i) + "_feature" + str(j) + "_sensor_data.txt", "a") as data_file:
+			for k in range(len(features[i][j])):
+				data_file.write("{:9.6f}".format(features[i][j][k][0]) + ", " +
+						"{:9.6f}".format(features[i][j][k][1]) + ", " +
+						"{:9.6f}".format(features[i][j][k][2]) + "\n\n")
+
 # Plot acceleration and quantised acceleration graphs.
 graphing.plot_acceleration_graph(acceleration, 20, 2, "raw_graph.png")
 graphing.plot_acceleration_graph(compressed, 20, 2, "compressed_graph.png")
 graphing.plot_acceleration_graph(discrete, 20, 16, "discrete_graph.png")
+
+# Plot quantised acceleration peaks graph.
+graphing.plot_peaks_acceleration_graph(compressed, peaks, 2, 20, 2, "peaks_graph.png")
+
+# Plot segments and features quantised acceleration graphs.
+for i in range(len(segments)):
+		graphing.plot_acceleration_graph(segments[i], 10, 2, "segment" + str(i) + "_graph.png")
+		for j in range(len(features[i])):
+			graphing.plot_acceleration_graph(features[i][j], 6, 2, "segment" + str(i) + "_feature" + str(j) + "_graph.png")

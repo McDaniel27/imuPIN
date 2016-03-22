@@ -1,4 +1,4 @@
-# imuPIN - sensor_read.py
+# imuPIN - sensor_low.py
 # Stuart McDaniel, 2016
 
 import ctypes
@@ -24,7 +24,7 @@ PACKET_LENGTHS = [28, 36]
 
 
 # Open named serial port for reading.
-def open_port():
+def open_serial_port():
 	# Open serial port.
 	ser = serial.Serial(
 		port=PORT,
@@ -105,7 +105,7 @@ def get_sensor_values(ser, metres, radians):
 
 		# Print packet bytes.
 		print("Data: ", end="")
-		for i in range(0, len(packet)):
+		for i in range(len(packet)):
 			print("{:3d}".format(packet[i]) + " ", end="")
 		print()
 
@@ -132,5 +132,5 @@ def get_sensor_values(ser, metres, radians):
 
 
 # Close named serial port.
-def close_port(ser):
+def close_serial_port(ser):
 	ser.close()
