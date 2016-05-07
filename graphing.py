@@ -1,31 +1,27 @@
 # imuPIN - graphing.py
 # Stuart McDaniel, 2016
 
-import utils
-
 import matplotlib.animation
 import matplotlib.pyplot
 import mpl_toolkits.mplot3d.axes3d
+import numpy
 
 
 # Plot acceleration graph.
 def plot_acceleration_graph(acceleration, x_axis_length, y_axis_size, image_name):
-	# Convert list of (x, y, z) tuples into array of arrays of x, y, and z values.
-	acceleration_array = utils.convert_tuples(acceleration)
-
 	# Plot graph.
 	fig = matplotlib.pyplot.figure()
 	fig.set_size_inches(x_axis_length, 10)
 	ax = fig.add_subplot(1, 1, 1)
-	ax.plot(range(len(acceleration_array[0])), acceleration_array[0], label="X-Axis")
-	ax.plot(range(len(acceleration_array[1])), acceleration_array[1], label="Y-Axis")
-	ax.plot(range(len(acceleration_array[2])), acceleration_array[2], label="Z-Axis")
+	ax.plot(range(len(acceleration[0])), acceleration[0], label="X-Axis")
+	ax.plot(range(len(acceleration[1])), acceleration[1], label="Y-Axis")
+	ax.plot(range(len(acceleration[2])), acceleration[2], label="Z-Axis")
 
 	# Set title, axes, and legend.
 	ax.set_title("Acceleration")
 	ax.set_xlabel("Sample Number")
 	ax.set_ylabel("Acceleration (g)")
-	ax.set_xlim(0, len(acceleration))
+	ax.set_xlim(0, len(acceleration[0]))
 	ax.set_ylim(-y_axis_size, y_axis_size)
 	ax.legend(loc="best", shadow=True)
 
@@ -33,28 +29,25 @@ def plot_acceleration_graph(acceleration, x_axis_length, y_axis_size, image_name
 	matplotlib.pyplot.savefig(image_name, dpi=100)
 
 
-# Plot acceleration graph and annotate peaks.
+# Plot acceleration graph and annotate ?-axis peaks.
 def plot_peaks_acceleration_graph(acceleration, peaks, peaks_axis, x_axis_length, y_axis_size, image_name):
-	# Convert list of (x, y, z) tuples into array of arrays of x, y, and z values.
-	acceleration_array = utils.convert_tuples(acceleration)
-
 	# Plot graph.
 	fig = matplotlib.pyplot.figure()
 	fig.set_size_inches(x_axis_length, 10)
 	ax = fig.add_subplot(1, 1, 1)
-	ax.plot(range(len(acceleration_array[0])), acceleration_array[0], label="X-Axis")
-	ax.plot(range(len(acceleration_array[1])), acceleration_array[1], label="Y-Axis")
-	ax.plot(range(len(acceleration_array[2])), acceleration_array[2], label="Z-Axis")
+	ax.plot(range(len(acceleration[0])), acceleration[0], label="X-Axis")
+	ax.plot(range(len(acceleration[1])), acceleration[1], label="Y-Axis")
+	ax.plot(range(len(acceleration[2])), acceleration[2], label="Z-Axis")
 
 	# Annotate peaks.
-	for i in range(len(peaks)):
-		ax.text(peaks[i], acceleration_array[peaks_axis][peaks[i]], "*", fontsize=20)
+	for peak in peaks:
+		ax.text(peak, acceleration[peaks_axis][peak], "*", fontsize=20)
 
 	# Set title, axes, and legend.
 	ax.set_title("Acceleration")
 	ax.set_xlabel("Sample Number")
 	ax.set_ylabel("Acceleration (g)")
-	ax.set_xlim(0, len(acceleration))
+	ax.set_xlim(0, len(acceleration[0]))
 	ax.set_ylim(-y_axis_size, y_axis_size)
 	ax.legend(loc="best", shadow=True)
 
@@ -64,8 +57,8 @@ def plot_peaks_acceleration_graph(acceleration, peaks, peaks_axis, x_axis_length
 
 # Plot and animate displacement graph.
 def plot_displacement_graph(displacement, axes_size, video_name):
-	# Convert list of (x, y, z) tuples into array of arrays of x, y, and z values.
-	displacement_array = utils.convert_tuples(displacement)
+	# Convert tuple of lists into array of lists.
+	displacement_array = numpy.asarray(displacement)
 
 	# Plot graph.
 	fig = matplotlib.pyplot.figure()

@@ -6,11 +6,11 @@
 # http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=5975346
 # http://www.x-io.co.uk/res/sw/madgwick_algorithm_c.zip
 
+import utils
+
 # CONSTANTS.
 # Algorithm beta gain.
 BETA_GAIN = 0.1
-# Sample frequency of sensor in Hz.
-SAMPLE_FREQ = 100.0
 
 
 # Calculate orientation quaternion of sensor sample using previous quaternion.
@@ -60,10 +60,10 @@ def orientation_filter(q, ang, acc):
 		q_dot_3 -= BETA_GAIN * s2
 		q_dot_4 -= BETA_GAIN * s3
 
-	q0 += q_dot_1 * (1.0 / SAMPLE_FREQ)
-	q1 += q_dot_2 * (1.0 / SAMPLE_FREQ)
-	q2 += q_dot_3 * (1.0 / SAMPLE_FREQ)
-	q3 += q_dot_4 * (1.0 / SAMPLE_FREQ)
+	q0 += q_dot_1 * (1.0 / utils.SAMPLE_FREQ)
+	q1 += q_dot_2 * (1.0 / utils.SAMPLE_FREQ)
+	q2 += q_dot_3 * (1.0 / utils.SAMPLE_FREQ)
+	q3 += q_dot_4 * (1.0 / utils.SAMPLE_FREQ)
 
 	recip_norm = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3) ** (-1/2)
 	q0 *= recip_norm

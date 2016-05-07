@@ -1,5 +1,7 @@
-# imuPIN - sensor_low.py
+# imuPIN - sensor.py
 # Stuart McDaniel, 2016
+
+import utils
 
 import ctypes
 import math
@@ -7,8 +9,6 @@ import scipy.constants
 import serial
 
 # CONSTANTS.
-# Serial port name.
-PORT = "/dev/cu.WAX9-DCDD-COM1"
 # Start/end of packet indicator byte.
 SLIP_END = 192
 # Second byte.
@@ -27,7 +27,7 @@ PACKET_LENGTHS = [28, 36]
 def open_serial_port():
 	# Open serial port.
 	ser = serial.Serial(
-		port=PORT,
+		port=utils.SERIAL_PORT,
 		baudrate=115200,
 		bytesize=serial.EIGHTBITS,
 		parity=serial.PARITY_NONE,
@@ -41,7 +41,7 @@ def open_serial_port():
 	return ser
 
 
-# Get acceleration and angular velocity values from sensor packet.
+# Get acceleration and angular velocity values from packet.
 def get_sensor_values(ser, metres, radians):
 	# Accelerometer normalisation value for m/s^2.
 	if metres:
@@ -74,6 +74,7 @@ def get_sensor_values(ser, metres, radians):
 	escaped = False
 	while True:
 		char = ser.read(size=1)[0]
+		# End of packet.
 		if char == SLIP_END:
 			packet.append(char)
 			break
@@ -98,16 +99,16 @@ def get_sensor_values(ser, metres, radians):
 		else:
 			packet.append(char)
 
-	# If sensor packet valid.
+	# If packet valid.
 	if len(packet) in PACKET_LENGTHS:
 		# Print packet length.
 		# print("Length:", len(data))
 
 		# Print packet bytes.
-		print("Data: ", end="")
-		for i in range(len(packet)):
-			print("{:3d}".format(packet[i]) + " ", end="")
-		print()
+		# print("Data: ", end="")
+		# for byte in packet:
+			# print("{:3d}".format(byte) + " ", end="")
+		# print()
 
 		# Convert and normalise accelerometer bytes to get acceleration on each axis.
 		# Uses C types to achieve exact 8-bit/16-bit and signed/unsigned precision.
@@ -122,9 +123,8 @@ def get_sensor_values(ser, metres, radians):
 		gz = ctypes.c_int16(ctypes.c_ushort(packet[20] << 8).value + ctypes.c_ushort(packet[19]).value).value * gyro_norm
 
 		# Print acceleration and angular velocity values.
-		# print("Acceleration:", ax, ay, az)
-		# print("Angular Velocity:", gx, gy, gz)
-		# print()
+		# print("Acceleration: " + str(ax) + ", " + str(ay) + ", " + str(az))
+		# print("Angular Velocity: " + str(gx) + ", " + str(gy) + ", " + str(gz) + "\n")
 
 		return ax, ay, az, gx, gy, gz
 	else:
